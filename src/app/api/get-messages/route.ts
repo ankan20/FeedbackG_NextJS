@@ -44,7 +44,13 @@ export async function GET(request:Request){
             status:200
         })
     } catch (error) {
-        
+        console.error("unexpected error uccured ",error)
+        return Response.json({
+            success:false,
+            messages:"server error "
+        },{
+            status:500
+        })
     }
     
 }
