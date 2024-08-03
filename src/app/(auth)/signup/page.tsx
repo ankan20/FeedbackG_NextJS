@@ -96,10 +96,21 @@ const page = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-800">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
+    <div className="relative flex justify-center items-center min-h-screen bg-black">
+      {/* Background Video */}
+      <video
+        className="absolute top-0 left-0 h-full w-full object-cover z-0"
+        src="/signup-background-video.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
+
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-md p-8 space-y-8 bg-white  bg-opacity-70 backdrop-blur-md rounded-lg shadow-md">
+        <div className="text-center ">
+          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6 ">
             Join FeedbackG
           </h1>
           <p className="mb-4">Sign up to start your anonymous adventure</p>
@@ -121,12 +132,17 @@ const page = () => {
                         debounced(e.target.value);
                       }}
                     />
-                    
                   </FormControl>
-                  {
-                      isCheckingUsername && <Loader2 className="animate-spin"/>
-                    }
-                    <p className={`text-sm ${usernameMessage ==="Username is available" ? 'text-green-500':'text-red-500'}`}> {usernameMessage}</p>
+                  {isCheckingUsername && <Loader2 className="animate-spin" />}
+                  <p
+                    className={`text-sm ${
+                      usernameMessage === "Username is available"
+                        ? "text-green-700"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {usernameMessage}
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
@@ -141,7 +157,6 @@ const page = () => {
                   <FormControl>
                     <Input placeholder="email" {...field} />
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -156,24 +171,25 @@ const page = () => {
                   <FormControl>
                     <Input type="password" placeholder="password" {...field} />
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isSubmitting}>{
-              isSubmitting ?(
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin"/>Please wait
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Please wait
                 </>
-              ):("Signup")
-}
+              ) : (
+                "Signup"
+              )}
             </Button>
           </form>
         </Form>
         <div className="text-center mt-4">
           <p>
-            Already a member?{' '}
+            Already a member?{" "}
             <Link href="/signin" className="text-blue-600 hover:text-blue-800">
               Sign in
             </Link>
@@ -183,5 +199,6 @@ const page = () => {
     </div>
   );
 };
+
 
 export default page;
