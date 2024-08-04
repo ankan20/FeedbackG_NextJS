@@ -9,7 +9,7 @@ const connection : ConnectionObject= {};
 async function dbConnect() : Promise<void>{
     //if database is connected no need to connect again
     if(connection.isConnected){
-        console.log("Already connected to database");
+        //console.log("Already connected to database");
         return ;
     }
 

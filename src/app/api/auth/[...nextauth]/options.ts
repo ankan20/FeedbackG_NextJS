@@ -10,7 +10,7 @@ export const authOptions :NextAuthOptions = {
             id: "credentials",
             name: "Credentials",
             credentials: {
-                email: { label: "Email", type: "text", placeholder: "email@example.com" },
+                email: { label: "Email", type: "text"},
                 password: { label: "Password", type: "password" }
               },
               async authorize(credentials:any):Promise<any> {
@@ -29,7 +29,7 @@ export const authOptions :NextAuthOptions = {
                         throw new Error("No user found with this email");
                     }
 
-                    if(user.isVerified){
+                    if(!user.isVerified){
                         throw new Error("Please verify your account before login");
                     }
                     const isPasswordCorrect = await bcrypt.compare(credentials.password,user.password);

@@ -37,12 +37,14 @@ const page = () => {
  
 
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
+    
     setIsSubmitting(true);
     const response = await signIn('credentials',{
       redirect:false,
       identifier:data.identifier,
       password:data.password
     })
+    
     if(response?.error){
       toast({
         title:'Login failed',
@@ -52,6 +54,7 @@ const page = () => {
     }
 
     if(response?.url){
+      setIsSubmitting(false);
       router.replace('/dashboard')
     }
   };
