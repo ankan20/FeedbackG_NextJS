@@ -2,6 +2,7 @@
 import dbConnect from '@/lib/dbconnect';
 import UserModel from '@/model/User';
 
+
 export async function POST(request: Request) {
   // Connect to the database
   await dbConnect();
