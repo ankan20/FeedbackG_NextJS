@@ -10,7 +10,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Separator } from "@radix-ui/react-separator";
 import { Switch } from "@/components/ui/switch";
 import axios, { AxiosError } from "axios";
-import { profile } from "console";
 import { Divide, Loader2, RefreshCcw } from "lucide-react";
 import { User } from "next-auth";
 import { useSession } from "next-auth/react";
@@ -216,16 +215,27 @@ const page = () => {
           ""
         )}
       </div>
-       <div className="block sm:hidden">
+       {
+        messages?.length >0 ?(
+          <div className="block sm:hidden">
        <MessageCardCarousel 
                messages={messages}
               onMessageDelete={handleDeleteMessage}/>
        </div>
-      <div className="w-full min-h-10 mt-14">
+        ):""
+       }
+       {
+        messages?.length ===0 ?( <div className="w-full min-h-10 mt-[15rem] md:mt-[9.8rem]">
+          <footer className="text-center p-4 md:p-6 bg-gray-900 text-white">
+            © 2023 True Feedback. All rights reserved | Made by Ankan | FeedbackG
+          </footer>
+          </div>):<div className="w-full min-h-10 mt-14">
       <footer className="text-center p-4 md:p-6 bg-gray-900 text-white">
         © 2023 True Feedback. All rights reserved | Made by Ankan | FeedbackG
       </footer>
       </div>
+       }
+      
 
     </>
     

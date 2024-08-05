@@ -1,9 +1,7 @@
 import dbConnect from "@/lib/dbconnect";
 import UserModel from "@/model/User";
 import bcrypt from "bcryptjs"
-import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 import nodemailer from 'nodemailer';
-import VerificationEmail from "../../../../emails/VerificationEmail";
 export async function POST (request:Request){
     
     //make database connection
