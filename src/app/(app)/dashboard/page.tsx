@@ -187,11 +187,11 @@ const page = () => {
           e.preventDefault();
           fetchMessages(true);
         }}
-      >
+      > Refresh to see new messages 
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
-          <RefreshCcw className="h-4 w-4" />
+          <RefreshCcw className="h-4 w-4 ml-2" />
         )}
       </Button>
       {
@@ -223,7 +223,7 @@ const page = () => {
        </div>
       <div className="w-full min-h-10 mt-14">
       <footer className="text-center p-4 md:p-6 bg-gray-900 text-white">
-        © 2023 True Feedback. All rights reserved | Made by Ankan
+        © 2023 True Feedback. All rights reserved | Made by Ankan | FeedbackG
       </footer>
       </div>
 

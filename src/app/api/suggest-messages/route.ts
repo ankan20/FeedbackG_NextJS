@@ -46,36 +46,62 @@ const fallbackQuestions = [
   "If you could spend a day with any fictional character, who would it be?"
 ];
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
   try {
     const prompt =
       "Create a list of three open-ended and engaging questions formatted as a single string. Each question should be separated by '||'. These questions are for an anonymous social messaging platform, like Qooh.me, and should be suitable for a diverse audience. Avoid personal or sensitive topics, focusing instead on universal themes that encourage friendly interaction. For example, your output should be structured like this: 'What’s a hobby you’ve recently started?||If you could have dinner with any historical figure, who would it be?||What’s a simple thing that makes you happy?'. Ensure the questions are intriguing, foster curiosity, and contribute to a positive and welcoming conversational environment.";
 
-    const response = await openai.completions.create({
-      model: 'gpt-3.5-turbo-instruct',
-      max_tokens: 500,
-      stream: true,
-      prompt,
-    });
+    // const response = await openai.completions.create({
+    //   model: 'gpt-3.5-turbo-instruct',
+    //   max_tokens: 500,
+    //   stream: true,
+    //   prompt,
+    // });
 
-    const stream = OpenAIStream(response);
-    return new StreamingTextResponse(stream);
+    // const stream = OpenAIStream(response);
+    
+    // return new StreamingTextResponse(stream);
+    const newMessages = (fallbackQuestions :string[]):string[]=>{
+      let arr:string[]=[];
+      while(arr.length <3){
+        let index1=Math.floor(Math.random()*fallbackQuestions.length);
+        let index2=Math.floor(Math.random()*fallbackQuestions.length);
+        let index3=Math.floor(Math.random()*fallbackQuestions.length);
+        if(index1 !=index2 && index1 !=index3){
+          arr.push(fallbackQuestions[index1]);
+        }
+        if(index1 !=index2 && index2 !=index3){
+          arr.push(fallbackQuestions[index2]);
+        }
+        if(index3 !=index2 && index1 !=index3){
+          arr.push(fallbackQuestions[index3]);
+        }
+
+      }
+      return arr;
+    }
+    
+    const fallbackResponse = newMessages(fallbackQuestions).join('||');
+    return Response.json({ questions: fallbackResponse })
 
   } catch (error) {
-    if (error instanceof OpenAI.APIError) {
-      // OpenAI API error handling
-      const { name, status, headers, message } = error;
-      if (status === 402 || status ===429) { 
-        // Fallback to predefined questions
-        const fallbackResponse = fallbackQuestions.join('||');
-        return NextResponse.json({ questions: fallbackResponse });
-      }
-      return NextResponse.json({ name, status, headers, message }, { status });
-    } else {
-      // General error handling
-      console.error('An unexpected error occurred:', error);
-      throw error;
-    }
+    // if (error instanceof OpenAI.APIError) {
+    //   // OpenAI API error handling
+    //   const { name, status, headers, message } = error;
+     
+    //   return NextResponse.json({ name, status, headers, message }, { status });
+    // } else {
+    //   // General error handling
+    //   console.error('An unexpected error occurred:', error);
+    //   throw error;
+    // }
+    console.error("Error sending suggested messages ",error)
+    return Response.json({
+        success:false,
+        messages:"Internal server error"
+    },{
+        status:500
+    })
   }
 }
 
