@@ -34,30 +34,38 @@ const Page = () => {
     },
   });
 
- 
+
 
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
-    
     setIsSubmitting(true);
-    const response = await signIn('credentials',{
-      redirect:false,
-      identifier:data.identifier,
-      password:data.password
-    })
-    
-    if(response?.error){
-      toast({
-        title:'Login failed',
-        description:"Incorrect email or password",
-        variant:"destructive"
-      })
-    }
 
-    if(response?.url){
+    try {
+      const response = await signIn("credentials", {
+        redirect: false,
+        identifier: data.identifier,
+        password: data.password,
+      });
+
+      if (response?.error) {
+        toast({
+          title: "Login Failed",
+          description: "Incorrect email or password",
+          variant: "destructive",
+        });
+      } else {
+        router.replace("/dashboard");
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsSubmitting(false);
-      router.replace('/dashboard')
     }
   };
+
 
   return (
     <div className="relative flex justify-center items-center min-h-screen bg-black">
@@ -81,7 +89,7 @@ const Page = () => {
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-           
+
 
             <FormField
               control={form.control}
@@ -124,7 +132,7 @@ const Page = () => {
         </Form>
         <div className="text-center mt-4">
           <p>
-          Not a member yet?{" "}
+            Not a member yet?{" "}
             <Link href="/signup" className="text-blue-600 hover:text-blue-800">
               Sign up
             </Link>
