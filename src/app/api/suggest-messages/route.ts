@@ -1,107 +1,141 @@
+// // import { NextResponse } from 'next/server';
+// // import { openai } from '@ai-sdk/openai';
+// // import { streamText } from 'ai';
+
+
+// // export const maxDuration = 30;
+
+// // export async function POST(req: Request) {
+// //   try {
+// //     const prompt =
+// //       "Create a list of three open-ended and engaging questions formatted as a single string. Each question should be separated by '||'. These questions are for an anonymous social messaging platform, like Qooh.me, and should be suitable for a diverse audience. Avoid personal or sensitive topics, focusing instead on universal themes that encourage friendly interaction. For example, your output should be structured like this: 'What’s a hobby you’ve recently started?||If you could have dinner with any historical figure, who would it be?||What’s a simple thing that makes you happy?'. Ensure the questions are intriguing, foster curiosity, and contribute to a positive and welcoming conversational environment.";
+
+// //     const response = await streamText({
+// //       model: openai('gpt-4-turbo'),
+// //       maxTokens: 400,
+// //       prompt,
+// //     });
+// //     return response.toDataStreamResponse();
+// //   } catch (error) {
+        
+// //       console.error('An unexpected error occurred on suggesting message through the API:', error);
+// //       throw error;
+   
+// //   }
+// // }
+// import OpenAI from 'openai';
+// import { OpenAIStream, StreamingTextResponse } from 'ai';
 // import { NextResponse } from 'next/server';
-// import { openai } from '@ai-sdk/openai';
-// import { streamText } from 'ai';
 
+// const openai = new OpenAI({
+//   apiKey: process.env.OPENAI_API_KEY,
+// });
 
-// export const maxDuration = 30;
+// export const runtime = 'edge';
 
-// export async function POST(req: Request) {
+// const fallbackQuestions = [
+//   "What's a hobby you've recently started?",
+//   "If you could have dinner with any historical figure, who would it be?",
+//   "What's a simple thing that makes you happy?",
+//   "What's the best piece of advice you've ever received?",
+//   "If you could live in any fictional universe, where would you choose?",
+//   "What's a book or movie that has had a big impact on you?",
+//   "If you could instantly learn any skill, what would it be?",
+//   "What's a dream you've had that you still remember vividly?",
+//   "What's a food you could eat every day and never get tired of?",
+//   "If you could spend a day with any fictional character, who would it be?"
+// ];
+
+// export async function GET(req: Request) {
 //   try {
 //     const prompt =
 //       "Create a list of three open-ended and engaging questions formatted as a single string. Each question should be separated by '||'. These questions are for an anonymous social messaging platform, like Qooh.me, and should be suitable for a diverse audience. Avoid personal or sensitive topics, focusing instead on universal themes that encourage friendly interaction. For example, your output should be structured like this: 'What’s a hobby you’ve recently started?||If you could have dinner with any historical figure, who would it be?||What’s a simple thing that makes you happy?'. Ensure the questions are intriguing, foster curiosity, and contribute to a positive and welcoming conversational environment.";
 
-//     const response = await streamText({
-//       model: openai('gpt-4-turbo'),
-//       maxTokens: 400,
-//       prompt,
-//     });
-//     return response.toDataStreamResponse();
+//     // const response = await openai.completions.create({
+//     //   model: 'gpt-3.5-turbo-instruct',
+//     //   max_tokens: 500,
+//     //   stream: true,
+//     //   prompt,
+//     // });
+
+//     // const stream = OpenAIStream(response);
+    
+//     // return new StreamingTextResponse(stream);
+//     const newMessages = (fallbackQuestions :string[]):string[]=>{
+//       let arr:string[]=[];
+//       while(arr.length <3){
+//         let index1=Math.floor(Math.random()*fallbackQuestions.length);
+//         let index2=Math.floor(Math.random()*fallbackQuestions.length);
+//         let index3=Math.floor(Math.random()*fallbackQuestions.length);
+//         if(index1 !=index2 && index1 !=index3){
+//           arr.push(fallbackQuestions[index1]);
+//         }
+//         if(index1 !=index2 && index2 !=index3){
+//           arr.push(fallbackQuestions[index2]);
+//         }
+//         if(index3 !=index2 && index1 !=index3){
+//           arr.push(fallbackQuestions[index3]);
+//         }
+
+//       }
+//       return arr;
+//     }
+    
+//     const fallbackResponse = newMessages(fallbackQuestions).join('||');
+//     return Response.json({ questions: fallbackResponse })
+
 //   } catch (error) {
-        
-//       console.error('An unexpected error occurred on suggesting message through the API:', error);
-//       throw error;
-   
+//     // if (error instanceof OpenAI.APIError) {
+//     //   // OpenAI API error handling
+//     //   const { name, status, headers, message } = error;
+     
+//     //   return NextResponse.json({ name, status, headers, message }, { status });
+//     // } else {
+//     //   // General error handling
+//     //   console.error('An unexpected error occurred:', error);
+//     //   throw error;
+//     // }
+//     console.error("Error sending suggested messages ",error)
+//     return Response.json({
+//         success:false,
+//         messages:"Internal server error"
+//     },{
+//         status:500
+//     })
 //   }
 // }
-import OpenAI from 'openai';
-import { OpenAIStream, StreamingTextResponse } from 'ai';
-import { NextResponse } from 'next/server';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
-export const runtime = 'edge';
 
-const fallbackQuestions = [
-  "What's a hobby you've recently started?",
-  "If you could have dinner with any historical figure, who would it be?",
-  "What's a simple thing that makes you happy?",
-  "What's the best piece of advice you've ever received?",
-  "If you could live in any fictional universe, where would you choose?",
-  "What's a book or movie that has had a big impact on you?",
-  "If you could instantly learn any skill, what would it be?",
-  "What's a dream you've had that you still remember vividly?",
-  "What's a food you could eat every day and never get tired of?",
-  "If you could spend a day with any fictional character, who would it be?"
-];
+import { NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export async function GET(req: Request) {
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
+
+export const runtime = "edge";
+
+export async function GET() {
   try {
-    const prompt =
-      "Create a list of three open-ended and engaging questions formatted as a single string. Each question should be separated by '||'. These questions are for an anonymous social messaging platform, like Qooh.me, and should be suitable for a diverse audience. Avoid personal or sensitive topics, focusing instead on universal themes that encourage friendly interaction. For example, your output should be structured like this: 'What’s a hobby you’ve recently started?||If you could have dinner with any historical figure, who would it be?||What’s a simple thing that makes you happy?'. Ensure the questions are intriguing, foster curiosity, and contribute to a positive and welcoming conversational environment.";
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-    // const response = await openai.completions.create({
-    //   model: 'gpt-3.5-turbo-instruct',
-    //   max_tokens: 500,
-    //   stream: true,
-    //   prompt,
-    // });
+    const prompt = `
+      Generate exactly 3 unique, lighthearted, and open-ended questions for an anonymous feedback or social Q&A platform.
+      These should feel casual and fun, like talking to a friendly stranger at a coffee shop.
+      Avoid personal, political, or sensitive topics.
+      Output them in a single string, separated by ||.
+      Example:
+      "If you woke up as a cat tomorrow, what would you do first?||What's the weirdest food combo you secretly love?||If you could teleport anywhere for lunch, where would you go?"
+    `;
 
-    // const stream = OpenAIStream(response);
-    
-    // return new StreamingTextResponse(stream);
-    const newMessages = (fallbackQuestions :string[]):string[]=>{
-      let arr:string[]=[];
-      while(arr.length <3){
-        let index1=Math.floor(Math.random()*fallbackQuestions.length);
-        let index2=Math.floor(Math.random()*fallbackQuestions.length);
-        let index3=Math.floor(Math.random()*fallbackQuestions.length);
-        if(index1 !=index2 && index1 !=index3){
-          arr.push(fallbackQuestions[index1]);
-        }
-        if(index1 !=index2 && index2 !=index3){
-          arr.push(fallbackQuestions[index2]);
-        }
-        if(index3 !=index2 && index1 !=index3){
-          arr.push(fallbackQuestions[index3]);
-        }
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
 
-      }
-      return arr;
-    }
-    
-    const fallbackResponse = newMessages(fallbackQuestions).join('||');
-    return Response.json({ questions: fallbackResponse })
-
+    return NextResponse.json({ questions: text });
   } catch (error) {
-    // if (error instanceof OpenAI.APIError) {
-    //   // OpenAI API error handling
-    //   const { name, status, headers, message } = error;
-     
-    //   return NextResponse.json({ name, status, headers, message }, { status });
-    // } else {
-    //   // General error handling
-    //   console.error('An unexpected error occurred:', error);
-    //   throw error;
-    // }
-    console.error("Error sending suggested messages ",error)
-    return Response.json({
-        success:false,
-        messages:"Internal server error"
-    },{
-        status:500
-    })
+    console.error("Error generating questions:", error);
+    return NextResponse.json(
+      { success: false, message: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
-
