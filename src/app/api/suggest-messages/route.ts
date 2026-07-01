@@ -17,10 +17,10 @@
 // //     });
 // //     return response.toDataStreamResponse();
 // //   } catch (error) {
-        
+
 // //       console.error('An unexpected error occurred on suggesting message through the API:', error);
 // //       throw error;
-   
+
 // //   }
 // // }
 // import OpenAI from 'openai';
@@ -59,7 +59,7 @@
 //     // });
 
 //     // const stream = OpenAIStream(response);
-    
+
 //     // return new StreamingTextResponse(stream);
 //     const newMessages = (fallbackQuestions :string[]):string[]=>{
 //       let arr:string[]=[];
@@ -80,7 +80,7 @@
 //       }
 //       return arr;
 //     }
-    
+
 //     const fallbackResponse = newMessages(fallbackQuestions).join('||');
 //     return Response.json({ questions: fallbackResponse })
 
@@ -88,7 +88,7 @@
 //     // if (error instanceof OpenAI.APIError) {
 //     //   // OpenAI API error handling
 //     //   const { name, status, headers, message } = error;
-     
+
 //     //   return NextResponse.json({ name, status, headers, message }, { status });
 //     // } else {
 //     //   // General error handling
@@ -114,28 +114,52 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
 
 export const runtime = "edge";
 
+const fallbackQuestions = [
+  "If animals could talk, which one would roast humans the most?",
+  "What’s the most useless superpower you can think of?",
+  "If you woke up as a potato, how would you spend your day?",
+  "Which fictional villain would make the best stand-up comedian?",
+  "If you could swap lives with a cartoon character for a day, who would it be?",
+  "What’s the weirdest food combo that actually slaps?",
+  "If your life had background music, what song would play when you enter a room?",
+  "Which inanimate object do you think is secretly judging you?"
+];
+
 export async function GET() {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "models/gemini-1.5-flash" });
 
     const prompt = `
-      Generate exactly 3 unique, lighthearted, and open-ended questions for an anonymous feedback or social Q&A platform.
-      These should feel casual and fun, like talking to a friendly stranger at a coffee shop.
-      Avoid personal, political, or sensitive topics.
-      Output them in a single string, separated by ||.
-      Example:
-      "If you woke up as a cat tomorrow, what would you do first?||What's the weirdest food combo you secretly love?||If you could teleport anywhere for lunch, where would you go?"
-    `;
+Create a list of exactly three **unique and never-before-repeated** open-ended questions.
+Each question should be separated by '||'.
+These are for an anonymous social messaging platform (like Qooh.me) and should be suitable for a diverse audience.
+Avoid personal, political, or sensitive topics, but make them intriguing, fun, and conversation-starting.
+Do NOT reuse or rephrase any example questions you've been given before.
+Add a playful twist or unexpected angle so each set feels fresh.
+Vary themes each time (could be about the future, silly hypotheticals, quirky "what if" scenarios, or imaginative challenges).
+Format: "Question1||Question2||Question3".
+Example for style only (do not copy): "If you woke up as a cloud, what would your first move be?||What’s a snack you’d take to a desert island?||If you had to teach aliens one game, what would it be?"
+`;
 
-    const result = await model.generateContent(prompt);
+
+
+    const result = await model.generateContent({
+  contents: [{ role: "user", parts: [{ text: prompt }] }],
+  generationConfig: {
+    temperature: 0.9, 
+    topP: 0.95,       
+  }
+});
     const text = result.response.text();
+    console.log(text)
 
     return NextResponse.json({ questions: text });
   } catch (error) {
     console.error("Error generating questions:", error);
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
+
+    const shuffled = fallbackQuestions.sort(() => 0.5 - Math.random());
+    const randomThree = shuffled.slice(0, 3).join("||");
+
+    return NextResponse.json({ questions: randomThree });
   }
 }
